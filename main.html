@@ -23,6 +23,9 @@
     <div id='currentLink'>Link:</div>
     <input type='button' value='Next' onClick='loadNextPage()'>
     <input type='button' value='Prev' onClick='loadPrevPage()'>
+    <input type='button' value='Next Unlabeled' onClick='loadNextUnlabeled()'><br>
+
+    Output Filename: <input id='outputFilename'></input>
     <input type='button' value='Save Work' onClick='saveWork()'><br>
 
     <iframe id='iframe'
@@ -45,6 +48,9 @@
                 webpageLinks = []
                 labels = {}
                 for (i = 0; i < textLines.length; i++) {
+                    if (textLines[i].length == 0) {
+                        continue;
+                    }
                     var lineParts = textLines[i].split('\t');
                     if (lineParts.length == 2) {
                         webpageLinks.push(lineParts[1]);
@@ -76,7 +82,7 @@
         var loadNextPage = function() {
             if (currentIndex < webpageLinks.length - 1) {
                 currentIndex++;
-                document.getElementById('currentIndex').innerText = 'Entry number: ' + currentIndex;
+                document.getElementById('currentIndex').innerText = 'Entry number: ' + (currentIndex + 1);
                 printLabel();
                 document.getElementById('iframe').src = webpageLinks[currentIndex];
                 document.getElementById('currentLink').innerText = 'Link: ' + webpageLinks[currentIndex];
@@ -86,10 +92,16 @@
             }
         };
 
+        var loadNextUnlabeled = function() {
+            while(webpageLinks[currentIndex] in labels) {
+                loadNextPage();
+            }
+        };
+
         var loadPrevPage = function() {
             if (currentIndex > 0) {
                 currentIndex--;
-                document.getElementById('currentIndex').innerText = 'Entry number: ' + currentIndex;
+                document.getElementById('currentIndex').innerText = 'Entry number: ' + (currentIndex + 1);
                 printLabel();
                 document.getElementById('iframe').src = webpageLinks[currentIndex];
                 document.getElementById('currentLink').innerText = 'Link: ' + webpageLinks[currentIndex];
@@ -98,54 +110,32 @@
             }
         };
 
-        // var saveWork = function() {
-        //     var labelsfilepath = '/home/mo/github/web-labeler/labels.txt';
-        //     var labelsfile = fs.openSync(labelsfilepath, 'w');
-        //     for (var key in labels) {
-        //         fs.writeSync(labelsfile, labels[key] + '\t' + key + '\n');
-        //     }
-        //     alert('Saved work at ' + labelsfilepath);
-        // };
-
-        // var saveWork = function() {
-        //     var fso = new ActiveXObject("Scripting.FileSystemObject");
-        //     var labelsfilepath = '/home/mo/github/web-labeler/labels.txt';
-        //     var fh = fso.OpenTextFile(labelsfilepath, 2, false, 0);
-        //     for (var key in labels) {
-        //         fh.WriteLine(labelsfile, labels[key] + '\t' + key + '\n');
-        //     }
-        //     fh.Close();
-        //     alert('Saved work at ' + labelsfilepath);
-        // }
-
         var saveWork = function() {
             var textToSave = '';
             for (i = 0; i < webpageLinks.length; i++) {
                 if (webpageLinks[i] in labels) {
-                    textToSave += labels[webpageLinks[i]] + '\t' + webpageLinks[i] + '\n'
+                    textToSave += labels[webpageLinks[i]] + '\t' + webpageLinks[i]
                 } else {
-                    textToSave += '\t' + webpageLinks[i] + '\n'
+                    textToSave += '\t' + webpageLinks[i]
+                }
+                if (i < webpageLinks.length - 1) {
+                    textToSave += '\n'
                 }
             }
             var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
             var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
-            var fileNameToSaveAs = 'labels.txt';
+            var fileNameToSave = document.getElementById("outputFilename").value;
 
             var downloadLink = document.createElement("a");
-            downloadLink.download = fileNameToSaveAs;
+            downloadLink.download = fileNameToSave;
             downloadLink.innerHTML = "Download File";
             downloadLink.href = textToSaveAsURL;
             downloadLink.onclick = destroyClickedElement;
             downloadLink.style.display = "none";
             document.body.appendChild(downloadLink);
             downloadLink.click();
-            alert('Saved work at ' + labelsfilepath);
         };
-
-        function destroyClickedElement(event)
-        {
-            document.body.removeChild(event.target);
-        };
+        function destroyClickedElement(event) { document.body.removeChild(event.target); };
 
         var markLabel = function(label) {
             labels[webpageLinks[currentIndex]] = label;
