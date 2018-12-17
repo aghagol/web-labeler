@@ -1,8 +1,8 @@
-	http://www.kellogg.northwestern.edu/sitemap/404error.aspx?item=%252ffaculty%252fgreenstein%252findex&user=extranet%255cAnonymous&site=website
-	http://www.chem.cmu.edu/groups/yaron/index.html
-	http://www.utas.edu.au/engineering-ict?lpersonId=524
+3	http://www.kellogg.northwestern.edu/sitemap/404error.aspx?item=%252ffaculty%252fgreenstein%252findex&user=extranet%255cAnonymous&site=website
+-1	http://www.chem.cmu.edu/groups/yaron/index.html
+2	http://www.utas.edu.au/engineering-ict?lpersonId=524
 	http://www.comp.nus.edu.sg/
-	http://cvrr.ucsd.edu/
+1	http://cvrr.ucsd.edu/
 	https://spears.okstate.edu/directory/?profile=amiri&action=getprofile
 	https://www.cmu.edu/epp/
 	http://academic.evergreen.edu/j/judyc/home.htm

@@ -2,6 +2,7 @@
 <body>
     <input type='file' onchange='openFile(event)'><br>
     <div id='currentLabel'>Label:</div>
+
     <input type='button'
         value='1: Positive (researcher homepage/faculty profile)'
         onClick='markLabel(1)'><br>
@@ -17,50 +18,86 @@
     <input type='button'
         value='4: Not Sure!'
         onClick='markLabel(4)'><br>
+
     <div id='currentIndex'>Entry number:</div>
+    <div id='currentLink'>Link:</div>
     <input type='button' value='Next' onClick='loadNextPage()'>
-    <input type='button' value='Prev' onClick='loadPrevPage()'><br>
-    <!-- <input type='button' value='Save' onClick='saveWork()'><br> -->
+    <input type='button' value='Prev' onClick='loadPrevPage()'>
+    <input type='button' value='Save Work' onClick='saveWork()'><br>
+
     <iframe id='iframe'
         width='1000'
         height='1000'
         src='about:blank'>
     </iframe>
+
     <script>
-        // var fs = require('fs');
+        // define global variables here
         var webpageLinks = [];
-        var currentIndex = -1;
         var labels = {};
+        var currentIndex = -1;
+
         var openFile = function(event) {
             var reader = new FileReader();
             reader.onload = function(event){
                 var text = reader.result;
-                webpageLinks = text.split("\n");
+                textLines = text.split('\n');
+                webpageLinks = []
+                labels = {}
+                for (i = 0; i < textLines.length; i++) {
+                    var lineParts = textLines[i].split('\t');
+                    if (lineParts.length == 2) {
+                        webpageLinks.push(lineParts[1]);
+                        if (lineParts[0].length > 0) {
+                            labels[lineParts[1]] = lineParts[0];
+                        }
+                    } else if (lineParts.length == 1) {
+                        webpageLinks.push(lineParts[0]);
+                    } else {
+                        alert('Error loading entry at line: ' + (i + 1));
+                    }
+                }
                 alert('Found ' + webpageLinks.length + ' entries');
                 currentIndex = -1;
                 loadNextPage();
             };
             reader.readAsText(event.target.files[0]);
         };
+
+        var printLabel = function() {
+            if (webpageLinks[currentIndex] in labels) {
+                var label = labels[webpageLinks[currentIndex]]
+                document.getElementById('currentLabel').innerText = 'Label: ' + label;
+            } else {
+                document.getElementById('currentLabel').innerText = 'Label: NA';
+            }
+        };
+
         var loadNextPage = function() {
             if (currentIndex < webpageLinks.length - 1) {
                 currentIndex++;
                 document.getElementById('currentIndex').innerText = 'Entry number: ' + currentIndex;
+                printLabel();
                 document.getElementById('iframe').src = webpageLinks[currentIndex];
+                document.getElementById('currentLink').innerText = 'Link: ' + webpageLinks[currentIndex];
             } else {
                 alert('Reached end of the list!');
                 currentIndex = webpageLinks.length;
             }
         };
+
         var loadPrevPage = function() {
-            if (currentIndex <= 0) {
-                alert('At top of the list!');
-            } else {
+            if (currentIndex > 0) {
                 currentIndex--;
                 document.getElementById('currentIndex').innerText = 'Entry number: ' + currentIndex;
+                printLabel();
                 document.getElementById('iframe').src = webpageLinks[currentIndex];
+                document.getElementById('currentLink').innerText = 'Link: ' + webpageLinks[currentIndex];
+            } else {
+                alert('Reached top of the list!');
             }
         };
+
         // var saveWork = function() {
         //     var labelsfilepath = '/home/mo/github/web-labeler/labels.txt';
         //     var labelsfile = fs.openSync(labelsfilepath, 'w');
@@ -69,6 +106,18 @@
         //     }
         //     alert('Saved work at ' + labelsfilepath);
         // };
+
+        var saveWork = function() {
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+            var labelsfilepath = '/home/mo/github/web-labeler/labels.txt';
+            var fh = fso.OpenTextFile(labelsfilepath, 2, false, 0);
+            for (var key in labels) {
+                fh.WriteLine(labelsfile, labels[key] + '\t' + key + '\n');
+            }
+            fh.Close();
+            alert('Saved work at ' + labelsfilepath);
+        }
+
         var markLabel = function(label) {
             labels[webpageLinks[currentIndex]] = label;
             document.getElementById('currentLabel').innerText = 'Label: ' + label;
