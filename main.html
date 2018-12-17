@@ -1,4 +1,8 @@
 <html>
+<head>
+    <meta name='description' content='Labeling tool'>
+    <meta name='author' content='Pardis Ranjbar Noiey (pardis.ranjbar@gmail.com)'>
+</head>
 <body>
     <input type='file' onchange='openFile(event)'><br>
     <div id='currentLabel'>Label:</div>
@@ -26,7 +30,7 @@
     <input type='button' value='Next Unlabeled' onClick='loadNextUnlabeled()'><br>
 
     Output Filename: <input id='outputFilename'></input>
-    <input type='button' value='Save Work' onClick='saveWork()'><br>
+    <input type='button' value='Download Labels' onClick='saveWork()'><br>
 
     <iframe id='iframe'
         width='1000'
@@ -85,15 +89,15 @@
                 document.getElementById('currentIndex').innerText = 'Entry number: ' + (currentIndex + 1);
                 printLabel();
                 document.getElementById('iframe').src = webpageLinks[currentIndex];
-                document.getElementById('currentLink').innerText = 'Link: ' + webpageLinks[currentIndex];
+                document.getElementById('currentLink').innerHTML = 'Link: <a href='
+					+ webpageLinks[currentIndex] + ' target=_blank>' + webpageLinks[currentIndex] + '</a>';
             } else {
                 alert('Reached end of the list!');
-                currentIndex = webpageLinks.length;
             }
         };
 
         var loadNextUnlabeled = function() {
-            while(webpageLinks[currentIndex] in labels) {
+            while(webpageLinks[currentIndex] in labels && currentIndex < webpageLinks.length - 1) {
                 loadNextPage();
             }
         };
@@ -104,7 +108,8 @@
                 document.getElementById('currentIndex').innerText = 'Entry number: ' + (currentIndex + 1);
                 printLabel();
                 document.getElementById('iframe').src = webpageLinks[currentIndex];
-                document.getElementById('currentLink').innerText = 'Link: ' + webpageLinks[currentIndex];
+                document.getElementById('currentLink').innerHTML = 'Link: <a href='
+					+ webpageLinks[currentIndex] + ' target=_blank>' + webpageLinks[currentIndex] + '</a>';
             } else {
                 alert('Reached top of the list!');
             }
